@@ -1,13 +1,16 @@
 <?php
 /**
- * Opções, sanitização e avaliação de regras.
+ * Core configuration, validation, and rule evaluation.
  *
- * @package Woo_Extra
+ * @package WC_Extra_Product_Options
+ * @license GPLv2
+ * @link https://wordpress.org/plugins/wc-extra-product-options/
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Woo_Extra_Core {
+if ( ! class_exists( 'WCEO_Core' ) ) {
+	class WCEO_Core {
 
 	const OPTION_KEY = 'woo_extra_config';
 
@@ -45,7 +48,7 @@ class Woo_Extra_Core {
 	 */
 	public static function default_config() {
 		return array(
-			'global_label'      => __( 'Extras', 'woo-extra' ),
+			'global_label'      => __( 'Extras', 'wc-extra-product-options' ),
 			'show_global_label' => true,
 			'sets'              => array(),
 		);
@@ -314,4 +317,6 @@ class Woo_Extra_Core {
 		}
 		return $labels;
 	}
+}
+
 }

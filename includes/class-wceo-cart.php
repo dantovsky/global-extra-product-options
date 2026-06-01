@@ -1,13 +1,16 @@
 <?php
 /**
- * Carrinho, checkout e encomenda.
+ * Cart, checkout, and order processing with extra options.
  *
- * @package Woo_Extra
+ * @package WC_Extra_Product_Options
+ * @license GPLv2
+ * @link https://wordpress.org/plugins/wc-extra-product-options/
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Woo_Extra_Cart {
+if ( ! class_exists( 'WCEO_Cart' ) ) {
+	class WCEO_Cart {
 
 	const CART_KEY = 'woo_extra_selection';
 
@@ -38,14 +41,14 @@ class Woo_Extra_Cart {
 			return $passed;
 		}
 
-		$visible = Woo_Extra_Core::get_visible_sets_for_product( $parent );
+		$visible = WCEO_Core::get_visible_sets_for_product( $parent );
 		if ( empty( $visible ) ) {
 			return $passed;
 		}
 
 		$raw = array();
 		if ( ! empty( $_POST['woo_extra_selection'] ) && is_array( $_POST['woo_extra_selection'] ) ) {
-			$raw = wp_unslash( $_POST['woo_extra_selection'] );
+			$raw = array_map( 'sanitize_key', wp_unslash( $_POST['woo_extra_selection'] ) );
 		}
 
 		foreach ( $visible as $set_def ) {
@@ -72,24 +75,24 @@ class Woo_Extra_Cart {
 					}
 				}
 				if ( ! $ok ) {
-					$label = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'woo-extra' );
+					$label = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'wc-extra-product-options' );
 					/* translators: %s: extra set name */
-					wc_add_notice( sprintf( __( 'Escolha pelo menos uma opção em "%s".', 'woo-extra' ), wp_strip_all_tags( $label ) ), 'error' );
+					wc_add_notice( sprintf( __( 'Escolha pelo menos uma opção em "%s".', 'wc-extra-product-options' ), wp_strip_all_tags( $label ) ), 'error' );
 					return false;
 				}
 			} else {
 				$incoming = isset( $raw[ $sid ] ) ? $raw[ $sid ] : '';
 				if ( '' === (string) $incoming ) {
-					$label = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'woo-extra' );
+					$label = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'wc-extra-product-options' );
 					/* translators: %s: extra set name */
-					wc_add_notice( sprintf( __( 'Escolha uma opção em "%s".', 'woo-extra' ), wp_strip_all_tags( $label ) ), 'error' );
+					wc_add_notice( sprintf( __( 'Escolha uma opção em "%s".', 'wc-extra-product-options' ), wp_strip_all_tags( $label ) ), 'error' );
 					return false;
 				}
 				$i = absint( $incoming );
 				if ( ! isset( $set_def['options'][ $i ] ) ) {
-					$label = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'woo-extra' );
+					$label = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'wc-extra-product-options' );
 					/* translators: %s: extra set name */
-					wc_add_notice( sprintf( __( 'Escolha uma opção em "%s".', 'woo-extra' ), wp_strip_all_tags( $label ) ), 'error' );
+					wc_add_notice( sprintf( __( 'Escolha uma opção em "%s".', 'wc-extra-product-options' ), wp_strip_all_tags( $label ) ), 'error' );
 					return false;
 				}
 			}
@@ -115,7 +118,7 @@ class Woo_Extra_Cart {
 			return $cart_item_data;
 		}
 
-		$visible = Woo_Extra_Core::get_visible_sets_for_product( $parent );
+		$visible = WCEO_Core::get_visible_sets_for_product( $parent );
 		if ( empty( $visible ) ) {
 			return $cart_item_data;
 		}
@@ -152,12 +155,12 @@ class Woo_Extra_Cart {
 				$indices = array_values( array_unique( $indices ) );
 				if ( ! empty( $indices ) ) {
 					$clean[ $set_id ] = $indices;
-					$labels           = Woo_Extra_Core::labels_for_selection( $set_def, $indices );
-					$set_name         = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'woo-extra' );
+					$labels           = WCEO_Core::labels_for_selection( $set_def, $indices );
+					$set_name         = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'wc-extra-product-options' );
 					$display[]        = array(
 						'set_name' => $set_name,
 						'labels'   => $labels,
-						'total'    => Woo_Extra_Core::calculate_addon_total( $set_def, $indices ),
+							'total'    => WCEO_Core::calculate_addon_total( $set_def, $indices ),
 					);
 				}
 			} else {
@@ -167,12 +170,12 @@ class Woo_Extra_Cart {
 				$i = absint( $incoming );
 				if ( isset( $set_def['options'][ $i ] ) ) {
 					$clean[ $set_id ] = array( $i );
-					$labels           = Woo_Extra_Core::labels_for_selection( $set_def, array( $i ) );
-					$set_name         = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'woo-extra' );
+					$labels           = WCEO_Core::labels_for_selection( $set_def, array( $i ) );
+					$set_name         = isset( $set_def['name'] ) && $set_def['name'] !== '' ? $set_def['name'] : __( 'Extras', 'wc-extra-product-options' );
 					$display[]        = array(
 						'set_name' => $set_name,
 						'labels'   => $labels,
-						'total'    => Woo_Extra_Core::calculate_addon_total( $set_def, array( $i ) ),
+							'total'    => WCEO_Core::calculate_addon_total( $set_def, array( $i ) ),
 					);
 				}
 			}
@@ -230,11 +233,11 @@ class Woo_Extra_Cart {
 
 			$addon = 0.0;
 			foreach ( $item[ self::CART_KEY ] as $set_id => $indices ) {
-				$set = Woo_Extra_Core::get_set_by_id( $set_id );
+				$set = WCEO_Core::get_set_by_id( $set_id );
 				if ( ! $set ) {
 					continue;
 				}
-				$addon += Woo_Extra_Core::calculate_addon_total( $set, $indices );
+				$addon += WCEO_Core::calculate_addon_total( $set, $indices );
 			}
 
 			$item['data']->set_price( $base + $addon );
@@ -254,7 +257,7 @@ class Woo_Extra_Cart {
 			if ( empty( $row['labels'] ) ) {
 				continue;
 			}
-			$name = isset( $row['set_name'] ) ? $row['set_name'] : __( 'Extras', 'woo-extra' );
+			$name = isset( $row['set_name'] ) ? $row['set_name'] : __( 'Extras', 'wc-extra-product-options' );
 			$item_data[] = array(
 				'name'    => $name,
 				'value'   => implode( ', ', array_map( 'wp_strip_all_tags', $row['labels'] ) ),
@@ -278,9 +281,11 @@ class Woo_Extra_Cart {
 			if ( empty( $row['labels'] ) ) {
 				continue;
 			}
-			$name = isset( $row['set_name'] ) ? $row['set_name'] : __( 'Extras', 'woo-extra' );
+			$name = isset( $row['set_name'] ) ? $row['set_name'] : __( 'Extras', 'wc-extra-product-options' );
 			$item->add_meta_data( $name, implode( ', ', $row['labels'] ), true );
 		}
 	}
+
+}
 
 }

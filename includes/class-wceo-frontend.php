@@ -1,13 +1,16 @@
 <?php
 /**
- * Frontend: renderização antes do botão e scripts de preço.
+ * Frontend product page rendering and price calculation scripts.
  *
- * @package Woo_Extra
+ * @package WC_Extra_Product_Options
+ * @license GPLv2
+ * @link https://wordpress.org/plugins/wc-extra-product-options/
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Woo_Extra_Frontend {
+if ( ! class_exists( 'WCEO_Frontend' ) ) {
+	class WCEO_Frontend {
 
 	public static function init() {
 		add_action( 'woocommerce_before_add_to_cart_button', array( __CLASS__, 'render_extras' ), 5 );
@@ -27,29 +30,29 @@ class Woo_Extra_Frontend {
 			return;
 		}
 		$pid = (int) $product->get_id();
-		$sets = Woo_Extra_Core::get_visible_sets_for_product( $pid );
+		$sets = WCEO_Core::get_visible_sets_for_product( $pid );
 		if ( empty( $sets ) ) {
 			return;
 		}
 
 		wp_register_style(
-			'woo-extra-frontend',
-			WOO_EXTRA_URL . 'assets/css/frontend-woo-extra.css',
+			'wceo-frontend',
+			WCEO_URL . 'assets/css/frontend-wceo.css',
 			array(),
-			WOO_EXTRA_VERSION
+			WCEO_VERSION
 		);
-		wp_enqueue_style( 'woo-extra-frontend' );
+		wp_enqueue_style( 'wceo-frontend' );
 
 		wp_register_script(
-			'woo-extra-frontend',
-			WOO_EXTRA_URL . 'assets/js/frontend-woo-extra.js',
+			'wceo-frontend',
+			WCEO_URL . 'assets/js/frontend-wceo.js',
 			array( 'jquery', 'wc-add-to-cart-variation' ),
-			WOO_EXTRA_VERSION,
+			WCEO_VERSION,
 			true
 		);
 
 		$base_display = (float) wc_get_price_to_display( $product );
-		$config       = Woo_Extra_Core::get_config();
+		$config       = WCEO_Core::get_config();
 
 		$price_suffix = '';
 		if ( $product && is_a( $product, 'WC_Product' ) && method_exists( $product, 'get_price_suffix' ) ) {
@@ -75,10 +78,10 @@ class Woo_Extra_Frontend {
 			);
 		}
 
-		wp_enqueue_script( 'woo-extra-frontend' );
+		wp_enqueue_script( 'wceo-frontend' );
 		wp_localize_script(
-			'woo-extra-frontend',
-			'wooExtraFront',
+			'wceo-frontend',
+			'wceoFront',
 			array(
 				'isVariable'   => $product->is_type( 'variable' ),
 				'basePrice'    => $base_display,
@@ -90,7 +93,7 @@ class Woo_Extra_Frontend {
 				'currencyPos'  => get_option( 'woocommerce_currency_pos', 'left' ),
 				'priceSuffix'  => wp_kses_post( $price_suffix ),
 				'strings'      => array(
-					'requiredMultiple' => __( 'Escolha pelo menos uma opção em cada extra obrigatório (tipo múltipla).', 'woo-extra' ),
+					'requiredMultiple' => __( 'Escolha pelo menos uma opção em cada extra obrigatório (tipo múltipla).', 'wc-extra-product-options' ),
 				),
 			)
 		);
@@ -106,17 +109,17 @@ class Woo_Extra_Frontend {
 		}
 
 		$pid  = (int) $product->get_id();
-		$sets = Woo_Extra_Core::get_visible_sets_for_product( $pid );
+		$sets = WCEO_Core::get_visible_sets_for_product( $pid );
 		if ( empty( $sets ) ) {
 			return;
 		}
 
-		$config = Woo_Extra_Core::get_config();
+		$config = WCEO_Core::get_config();
 
-		echo '<div class="woo-extra-fields-wrap">';
+		echo '<div class="wceo-fields-wrap">';
 
 		if ( ! empty( $config['show_global_label'] ) && ! empty( $config['global_label'] ) ) {
-			echo '<div class="woo-extra-global-label">' . esc_html( $config['global_label'] ) . '</div>';
+			echo '<div class="wceo-global-label">' . esc_html( $config['global_label'] ) . '</div>';
 		}
 
 		foreach ( $sets as $set ) {
@@ -124,47 +127,47 @@ class Woo_Extra_Frontend {
 			$cc  = isset( $set['css_class'] ) ? $set['css_class'] : '';
 			$sid = isset( $set['id'] ) ? $set['id'] : '';
 
-			$classes = trim( 'woo-extra-set woo-extra-set-' . sanitize_html_class( $sid, 'set' ) . ' ' . $cc );
+			$classes = trim( 'wceo-set wceo-set-' . sanitize_html_class( $sid, 'set' ) . ' ' . $cc );
 			$attr_id = $cid !== '' ? ' id="' . esc_attr( $cid ) . '"' : '';
 			$req     = ! empty( $set['required'] );
 			$dreq    = $req ? ' data-required="1"' : '';
 
 			echo '<fieldset class="' . esc_attr( $classes ) . '"' . $attr_id . $dreq . '>';
 			if ( ! empty( $set['name'] ) ) {
-				echo '<legend class="woo-extra-set-legend">' . esc_html( $set['name'] ) . '</legend>';
+				echo '<legend class="wceo-set-legend">' . esc_html( $set['name'] ) . '</legend>';
 			}
 
 			$fname = 'woo_extra_selection[' . esc_attr( $sid ) . ']';
 			$type  = isset( $set['choice_type'] ) ? $set['choice_type'] : 'exclusive';
 
 			if ( 'multiple' === $type ) {
-				echo '<ul class="woo-extra-options woo-extra-options-multiple">';
+				echo '<ul class="wceo-options wceo-options-multiple">';
 				foreach ( $set['options'] as $idx => $opt ) {
-					$lid = 'woo-extra-' . $sid . '-' . $idx;
+					$lid = 'wceo-' . $sid . '-' . $idx;
 					echo '<li><label for="' . esc_attr( $lid ) . '">';
-					echo '<input type="checkbox" id="' . esc_attr( $lid ) . '" name="' . esc_attr( $fname ) . '[]" value="' . esc_attr( (string) $idx ) . '" class="woo-extra-input" data-add="' . esc_attr( wc_format_decimal( $opt['price'] ) ) . '" /> ';
+					echo '<input type="checkbox" id="' . esc_attr( $lid ) . '" name="' . esc_attr( $fname ) . '[]" value="' . esc_attr( (string) $idx ) . '" class="wceo-input" data-add="' . esc_attr( wc_format_decimal( $opt['price'] ) ) . '" /> ';
 					echo esc_html( $opt['label'] );
-					echo ' <span class="woo-extra-option-suffix">(+' . wp_kses_post( wc_price( $opt['price'] ) ) . ')</span>';
+					echo ' <span class="wceo-option-suffix">(+' . wp_kses_post( wc_price( $opt['price'] ) ) . ')</span>';
 					echo '</label></li>';
 				}
 				echo '</ul>';
 			} elseif ( 'exclusive_radio' === $type ) {
 				$req_attrs = $req ? ' required aria-required="true"' : '';
-				echo '<ul class="woo-extra-options woo-extra-options-radio">';
+				echo '<ul class="wceo-options wceo-options-radio">';
 				foreach ( $set['options'] as $idx => $opt ) {
-					$lid = 'woo-extra-' . $sid . '-' . $idx;
+					$lid = 'wceo-' . $sid . '-' . $idx;
 					echo '<li><label for="' . esc_attr( $lid ) . '">';
-					echo '<input type="radio" id="' . esc_attr( $lid ) . '" name="' . esc_attr( $fname ) . '" value="' . esc_attr( (string) $idx ) . '" class="woo-extra-input" data-add="' . esc_attr( wc_format_decimal( $opt['price'] ) ) . '"' . $req_attrs . ' /> ';
+					echo '<input type="radio" id="' . esc_attr( $lid ) . '" name="' . esc_attr( $fname ) . '" value="' . esc_attr( (string) $idx ) . '" class="wceo-input" data-add="' . esc_attr( wc_format_decimal( $opt['price'] ) ) . '"' . $req_attrs . ' /> ';
 					echo esc_html( $opt['label'] );
-					echo ' <span class="woo-extra-option-suffix">(+' . wp_kses_post( wc_price( $opt['price'] ) ) . ')</span>';
+					echo ' <span class="wceo-option-suffix">(+' . wp_kses_post( wc_price( $opt['price'] ) ) . ')</span>';
 					echo '</label></li>';
 					$req_attrs = '';
 				}
 				echo '</ul>';
 			} else {
 				$req_attrs = $req ? ' required aria-required="true"' : '';
-				echo '<select name="' . esc_attr( $fname ) . '" class="woo-extra-input woo-extra-select" data-exclusive="1"' . $req_attrs . '>';
-				echo '<option value="">' . esc_html__( '— Selecionar —', 'woo-extra' ) . '</option>';
+				echo '<select name="' . esc_attr( $fname ) . '" class="wceo-input wceo-select" data-exclusive="1"' . $req_attrs . '>';
+				echo '<option value="">' . esc_html__( '— Selecionar —', 'wc-extra-product-options' ) . '</option>';
 				foreach ( $set['options'] as $idx => $opt ) {
 					echo '<option value="' . esc_attr( (string) $idx ) . '" data-add="' . esc_attr( wc_format_decimal( $opt['price'] ) ) . '">';
 					echo esc_html( $opt['label'] );
@@ -178,5 +181,6 @@ class Woo_Extra_Frontend {
 		}
 
 		echo '</div>';
+	}
 	}
 }
