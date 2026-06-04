@@ -14,6 +14,14 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 
 	const CART_KEY = 'wceo_selection';
 
+	/**
+	 * Initialize the Cart class.
+	 *
+	 * Registers hooks for cart validation, item data storage, price calculation,
+	 * and order metadata handling.
+	 *
+	 * @return void
+	 */
 	public static function init() {
 		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_required_extras' ), 10, 4 );
 		add_filter( 'woocommerce_add_cart_item_data', array( __CLASS__, 'add_cart_item_data' ), 10, 3 );
@@ -24,13 +32,16 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	}
 
 	/**
-	 * Garante que conjuntos marcados como obrigatórios tenham seleção antes de adicionar ao carrinho.
+	 * Validate that required extra options are selected before adding to cart.
 	 *
-	 * @param bool $passed
-	 * @param int  $product_id   ID do produto (pai em variações).
-	 * @param int  $quantity
-	 * @param int  $variation_id
-	 * @return bool
+	 * Checks all visible sets marked as required and ensures at least one option
+	 * is selected. Displays error notices if validation fails.
+	 *
+	 * @param bool $passed        Whether validation has passed so far.
+	 * @param int  $product_id    Product ID (parent ID for variations).
+	 * @param int  $quantity      Quantity being added.
+	 * @param int  $variation_id  Variation ID (0 for simple products).
+	 * @return bool True if validation passes or no requirements set, false otherwise.
 	 */
 	public static function validate_required_extras( $passed, $product_id, $quantity, $variation_id = 0 ) {
 		if ( ! $passed ) {
@@ -102,9 +113,15 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	}
 
 	/**
-	 * @param array $cart_item_data
-	 * @param int   $product_id
-	 * @param int   $variation_id
+	 * Store extra option selections in cart item data.
+	 *
+	 * Sanitizes and validates selected options, stores indices and display labels,
+	 * and calculates additional pricing. Attaches data to the cart item.
+	 *
+	 * @param array $cart_item_data Cart item data array.
+	 * @param int   $product_id     Product ID.
+	 * @param int   $variation_id   Variation ID (0 for simple products).
+	 * @return array Modified cart item data with extra options attached.
 	 */
 	public static function add_cart_item_data( $cart_item_data, $product_id, $variation_id ) {
 		if ( empty( $_POST['wceo_selection'] ) || ! is_array( $_POST['wceo_selection'] ) ) {
@@ -198,8 +215,14 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	}
 
 	/**
-	 * @param array $cart_item
-	 * @param array $values
+	 * Restore extra option data from session.
+	 *
+	 * Reconstructs cart item data from session values, including selected options,
+	 * display information, and base pricing.
+	 *
+	 * @param array $cart_item Cart item data array.
+	 * @param array $values    Session values for this cart item.
+	 * @return array Modified cart item with restored extra option data.
 	 */
 	public static function get_cart_item_from_session( $cart_item, $values ) {
 		if ( ! empty( $values[ self::CART_KEY ] ) ) {
@@ -218,7 +241,13 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	}
 
 	/**
-	 * @param WC_Cart $cart
+	 * Recalculate cart item price to include addon prices.
+	 *
+	 * Updates product price with base price plus all selected extra option prices.
+	 * Only runs on frontend and checkout (skips admin views).
+	 *
+	 * @param WC_Cart $cart The WooCommerce cart object.
+	 * @return void
 	 */
 	public static function before_calculate_totals( $cart ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
@@ -246,8 +275,13 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	}
 
 	/**
-	 * @param array $item_data
-	 * @param array $cart_item
+	 * Add extra option display data to cart item metadata.
+	 *
+	 * Formats selected options for display in cart totals, showing set name and option labels.
+	 *
+	 * @param array $item_data   Array of cart item meta display items.
+	 * @param array $cart_item   Cart item data.
+	 * @return array Modified item data with extra options added.
 	 */
 	public static function get_item_data( $item_data, $cart_item ) {
 		if ( empty( $cart_item['woo_extra_display'] ) || ! is_array( $cart_item['woo_extra_display'] ) ) {
@@ -268,10 +302,15 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	}
 
 	/**
-	 * @param WC_Order_Item_Product $item
-	 * @param string                $cart_item_key
-	 * @param array                 $values
-	 * @param WC_Order              $order
+	 * Store extra option data as order item metadata.
+	 *
+	 * Saves selected options to the order item for record-keeping and order details display.
+	 *
+	 * @param WC_Order_Item_Product $item           Order line item object.
+	 * @param string                $cart_item_key  Cart item key.
+	 * @param array                 $values         Cart item values.
+	 * @param WC_Order              $order          Order object.
+	 * @return void
 	 */
 	public static function order_line_item_meta( $item, $cart_item_key, $values, $order ) {
 		if ( empty( $values['woo_extra_display'] ) || ! is_array( $values['woo_extra_display'] ) ) {

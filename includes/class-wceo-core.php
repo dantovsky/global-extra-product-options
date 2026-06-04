@@ -19,12 +19,24 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	 */
 	protected static $config_cache = null;
 
+	/**
+	 * Initialize the Core class.
+	 *
+	 * No initialization hooks required for the Core class.
+	 *
+	 * @return void
+	 */
 	public static function init() {
 		// Nada obrigatório no init do core.
 	}
 
 	/**
-	 * @return array{global_label:string,show_global_label:bool,sets:array<int,array>}
+	 * Get plugin configuration.
+	 *
+	 * Returns cached configuration or loads default and stored options.
+	 * Configuration includes global label, label visibility, and product option sets.
+	 *
+	 * @return array{global_label:string,show_global_label:bool,sets:array<int,array>} Configuration array.
 	 */
 	public static function get_config() {
 		if ( null !== self::$config_cache ) {
@@ -39,12 +51,23 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 		return self::$config_cache;
 	}
 
+	/**
+	 * Clear the configuration cache.
+	 *
+	 * Forces the next get_config() call to reload from the database.
+	 *
+	 * @return void
+	 */
 	public static function clear_config_cache() {
 		self::$config_cache = null;
 	}
 
 	/**
-	 * @return array
+	 * Get default configuration structure.
+	 *
+	 * Returns the default values for global label, label visibility, and empty sets array.
+	 *
+	 * @return array Configuration array with default values.
 	 */
 	public static function default_config() {
 		return array(
@@ -55,7 +78,13 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	}
 
 	/**
-	 * @param array $raw Dados já em array (ex.: $_POST['wc_extra_product_options_config'] sanitizado).
+	 * Sanitize raw configuration input.
+	 *
+	 * Validates and sanitizes all configuration fields, option labels/prices,
+	 * and visibility rules. Generates missing set IDs and applies safe defaults.
+	 *
+	 * @param array $raw Raw configuration input (typically from $_POST).
+	 * @return array Sanitized and validated configuration array.
 	 */
 	public static function sanitize_config( $raw ) {
 		$out = array(
@@ -157,15 +186,27 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 		return $out;
 	}
 
+	/**
+	 * Generate a unique set ID.
+	 *
+	 * Creates a random identifier for a new option set using 'set_' prefix
+	 * followed by a 12-character random string.
+	 *
+	 * @return string Unique set identifier.
+	 */
 	public static function generate_set_id() {
 		return 'set_' . wp_generate_password( 12, false, false );
 	}
 
 	/**
-	 * Sem regras: o conjunto aplica-se a todos os produtos. Com regras: lógica AND/OR em cadeia.
+	 * Evaluate if visibility rules match a product.
 	 *
-	 * @param int   $product_id ID do produto (pai em variações na página do produto).
-	 * @param array $rules      Lista de regras sanitizadas.
+	 * Checks if a product meets all configured visibility rules using AND/OR logic.
+	 * Empty rules array means the set is visible on all products.
+	 *
+	 * @param int   $product_id ID of the product (parent ID for variations).
+	 * @param array $rules      Array of sanitized visibility rules.
+	 * @return bool True if product matches rules or rules are empty.
 	 */
 	public static function rules_match_product( $product_id, $rules ) {
 		$product_id = absint( $product_id );
@@ -201,9 +242,15 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	}
 
 	/**
-	 * @param int              $product_id
-	 * @param WC_Product|false $product
-	 * @param array            $rule
+	 * Evaluate a single visibility rule against a product.
+	 *
+	 * Checks product ID, category membership, or tag membership based on rule subject.
+	 * Handles variations by checking parent product.
+	 *
+	 * @param int              $product_id ID of the product (parent for variations).
+	 * @param WC_Product|false $product    Product object or false if not found.
+	 * @param array            $rule       Rule configuration with subject, operator, and object_id.
+	 * @return bool True if rule condition is met.
 	 */
 	protected static function evaluate_single_rule( $product_id, $product, $rule ) {
 		$subject  = $rule['subject'] ?? 'product';
@@ -242,10 +289,12 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	}
 
 	/**
-	 * Conjuntos visíveis para o produto (opções não vazias e regras satisfeitas).
+	 * Get visible option sets for a product.
 	 *
-	 * @param int $product_id ID principal na página (pai para variações).
-	 * @return array<int,array>
+	 * Returns only enabled sets with non-empty options and matching visibility rules.
+	 *
+	 * @param int $product_id ID of the main product (parent for variations).
+	 * @return array<int,array> Array of visible set configurations.
 	 */
 	public static function get_visible_sets_for_product( $product_id ) {
 		$config = self::get_config();
@@ -266,8 +315,12 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	}
 
 	/**
-	 * @param string $set_id
-	 * @return array|null
+	 * Retrieve a set by its ID.
+	 *
+	 * Searches through all configured sets for the one matching the given ID.
+	 *
+	 * @param string $set_id The set identifier to search for.
+	 * @return array|null The set configuration array, or null if not found.
 	 */
 	public static function get_set_by_id( $set_id ) {
 		$set_id = sanitize_key( $set_id );
@@ -280,10 +333,13 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	}
 
 	/**
-	 * Soma dos preços das opções escolhidas (índices válidos).
+	 * Calculate total additional price for selected options.
 	 *
-	 * @param array $set   Definição do conjunto.
-	 * @param int[] $indices Índices das opções (0-based).
+	 * Sums the prices of options at the given indices within a set.
+	 *
+	 * @param array $set     Set configuration containing option prices.
+	 * @param int[] $indices Array of 0-based option indices (valid indices only).
+	 * @return float Total additional price.
 	 */
 	public static function calculate_addon_total( $set, $indices ) {
 		if ( empty( $set['options'] ) || ! is_array( $indices ) ) {
@@ -301,11 +357,13 @@ if ( ! class_exists( 'WCEO_Core' ) ) {
 	}
 
 	/**
-	 * Etiquetas para metadados (carrinho/encomenda).
+	 * Get display labels for selected options.
 	 *
-	 * @param array $set
-	 * @param int[] $indices
-	 * @return string[]
+	 * Extracts option labels at the given indices for cart/order display.
+	 *
+	 * @param array $set     Set configuration containing option labels.
+	 * @param int[] $indices Array of 0-based option indices.
+	 * @return string[] Array of option labels.
 	 */
 	public static function labels_for_selection( $set, $indices ) {
 		$labels = array();
