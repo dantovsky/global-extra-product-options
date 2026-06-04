@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Extra Product Options for WooCommerce
- * Description: Opções extra para produtos do WooCommerce com preço e regras de exibição com base em produto, categoria ou tag.
+ * Description: This plugin adds extra product options to WooCommerce products with pricing and conditional display rules.
  * Version: 1.2.0
  * Author: Dante Marinho
  * Author URI: https://profiles.wordpress.org/dantiii

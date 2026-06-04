@@ -4,6 +4,8 @@
 
 'Extra Product Options for WooCommerce' is a WordPress plugin that enables custom fields with price for WooCommerce plugin.
 
+(PT) Plugin de opções extra para produtos do WooCommerce com preço e regras de exibição com base em produto, categoria ou tag.
+
 Github link for this plugin project:  
 https://github.com/dantovsky/woo-extra-product-options
 
