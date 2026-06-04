@@ -12,13 +12,25 @@ defined( 'ABSPATH' ) || exit;
 if ( ! class_exists( 'WCEO_Frontend' ) ) {
 	class WCEO_Frontend {
 
+	/**
+	 * Initialize the Frontend class.
+	 *
+	 * Registers hooks for rendering extras and enqueueing frontend assets.
+	 *
+	 * @return void
+	 */
 	public static function init() {
 		add_action( 'woocommerce_before_add_to_cart_button', array( __CLASS__, 'render_extras' ), 5 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_enqueue' ) );
 	}
 
 	/**
-	 * Carrega assets apenas em produto simples/variável com conjuntos visíveis.
+	 * Conditionally enqueue frontend assets.
+	 *
+	 * Only loads CSS and JavaScript on product pages with visible option sets.
+	 * Prepares product data and pricing configuration for frontend scripts.
+	 *
+	 * @return void
 	 */
 	public static function maybe_enqueue() {
 		if ( ! is_product() ) {
@@ -99,6 +111,14 @@ if ( ! class_exists( 'WCEO_Frontend' ) ) {
 		);
 	}
 
+	/**
+	 * Render product option sets on the single product page.
+	 *
+	 * Outputs HTML form fields for each visible option set (select, radio, or checkbox).
+	 * Respects set configuration (name, type, options, CSS classes/IDs).
+	 *
+	 * @return void
+	 */
 	public static function render_extras() {
 		if ( ! is_product() ) {
 			return;
@@ -137,7 +157,7 @@ if ( ! class_exists( 'WCEO_Frontend' ) ) {
 				echo '<legend class="wceo-set-legend">' . esc_html( $set['name'] ) . '</legend>';
 			}
 
-			$fname = 'woo_extra_selection[' . esc_attr( $sid ) . ']';
+			$fname = 'wceo_selection[' . esc_attr( $sid ) . ']';
 			$type  = isset( $set['choice_type'] ) ? $set['choice_type'] : 'exclusive';
 
 			if ( 'multiple' === $type ) {

@@ -11,13 +11,27 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'WCEO_Admin' ) ) {
 	class WCEO_Admin {
-
+		
+	/**
+	 * Initialize the Admin class.
+	 *
+	 * Registers hooks for menu registration, settings save, and asset enqueueing.
+	 *
+	 * @return void
+	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ), 60 );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_save' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
 	}
 
+	/**
+	 * Register the admin settings submenu page.
+	 *
+	 * Adds a submenu page under WooCommerce for managing plugin configuration.
+	 *
+	 * @return void
+	 */
 	public static function register_menu() {
 		add_submenu_page(
 			'woocommerce',
@@ -29,6 +43,15 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 		);
 	}
 
+	/**
+	 * Enqueue admin page assets.
+	 *
+	 * Loads CSS and JavaScript for the settings page, including products/categories/tags data.
+	 * Only enqueues on the WCEO settings page.
+	 *
+	 * @param string $hook Current admin page hook.
+	 * @return void
+	 */
 	public static function enqueue( $hook ) {
 		if ( 'woocommerce_page_wceo-settings' !== $hook ) {
 			return;
@@ -92,6 +115,14 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 		);
 	}
 
+	/**
+	 * Save settings if form is submitted with valid nonce.
+	 *
+	 * Sanitizes configuration and saves to WordPress options.
+	 * Requires manage_woocommerce capability.
+	 *
+	 * @return void
+	 */
 	public static function maybe_save() {
 		if ( ! isset( $_POST['woo_extra_save'], $_POST['woo_extra_nonce'] ) ) {
 			return;
@@ -113,6 +144,14 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 		add_settings_error( 'woo_extra', 'saved', __( 'Definições guardadas.', 'wc-extra-product-options' ), 'success' );
 	}
 
+	/**
+	 * Render the admin settings page.
+	 *
+	 * Displays the form for configuring global labels, option sets, and visibility rules.
+	 * Requires manage_woocommerce capability.
+	 *
+	 * @return void
+	 */
 	public static function render_page() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
@@ -197,7 +236,11 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 	}
 
 	/**
-	 * @return array
+	 * Create a blank option set template.
+	 *
+	 * Returns a default set structure for new sets in the admin form.
+	 *
+	 * @return array Blank set configuration.
 	 */
 	protected static function blank_set() {
 		return array(
@@ -216,12 +259,18 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 	}
 
 	/**
-	 * @param int|string $s
-	 * @param array      $set
-	 * @param array      $cats
-	 * @param array      $tags
-	 * @param array      $products_for_select id => name
-	 * @param bool       $start_collapsed     Se true, o painel inicia fechado (lista já guardada).
+	 * Render a collapsible set configuration box.
+	 *
+	 * Renders the HTML form for a single option set, including name, type, options table,
+	 * and visibility rules. Handles collapsed state for persisted sets.
+	 *
+	 * @param int|string $s                  Set index in the form array.
+	 * @param array      $set                Set configuration data.
+	 * @param array      $cats               WP_Term objects for product categories.
+	 * @param array      $tags               WP_Term objects for product tags.
+	 * @param array      $products_for_select Associative array of product ID => name.
+	 * @param bool       $start_collapsed    If true, box renders in collapsed state.
+	 * @return void
 	 */
 	protected static function render_set_box( $s, $set, $cats, $tags, $products_for_select, $start_collapsed = false ) {
 		$set_index = (string) $s;
@@ -362,8 +411,15 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 	}
 
 	/**
-	 * @param string $set_index
-	 * @param string $i
+	 * Generate HTML markup for an option row in the options table.
+	 *
+	 * Creates a table row with inputs for option label, price, and delete button.
+	 *
+	 * @param string $set_index Set index in the form array.
+	 * @param string $i         Option index within the set.
+	 * @param string $label     Option label value.
+	 * @param string $price     Option price value.
+	 * @return string HTML table row markup.
 	 */
 	public static function get_option_row_markup( $set_index, $i, $label, $price ) {
 		ob_start();
@@ -382,16 +438,22 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 	}
 
 	/**
-	 * @param string     $set_index
-	 * @param string     $i
-	 * @param bool       $is_first
-	 * @param string     $join       AND ou OR (ignorado se $is_first)
-	 * @param string     $subject
-	 * @param string     $operator
-	 * @param int        $object_id
-	 * @param \WP_Term[] $cats
-	 * @param \WP_Term[] $tags
-	 * @param int[]|array $products    id => name
+	 * Generate HTML markup for a visibility rule row.
+	 *
+	 * Creates a table row with dropdowns for join logic, subject type, operator,
+	 * object selection, and delete button.
+	 *
+	 * @param string     $set_index Set index in the form array.
+	 * @param string     $i         Rule index within the set.
+	 * @param bool       $is_first  True if this is the first rule (no join operator).
+	 * @param string     $join      Join operator (AND or OR).
+	 * @param string     $subject   Rule subject type (product, category, product_tag).
+	 * @param string     $operator  Comparison operator (equals, not_equals).
+	 * @param int        $object_id Selected object ID.
+	 * @param WP_Term[]  $cats      Category terms.
+	 * @param WP_Term[]  $tags      Product tag terms.
+	 * @param array      $products  Associative array of product ID => name.
+	 * @return string HTML table row markup.
 	 */
 	public static function get_rule_row_markup( $set_index, $i, $is_first, $join, $subject, $operator, $object_id, $cats = array(), $tags = array(), $products = array() ) {
 		ob_start();
@@ -432,11 +494,19 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 	}
 
 	/**
-	 * Um único select (nome object_id) conforme o tipo de alvo.
+	 * Generate select dropdown HTML for rule object selection.
 	 *
-	 * @param array $cats
-	 * @param array $tags
-	 * @param array $products
+	 * Creates a select element populated with products, categories, or tags
+	 * based on the rule subject type.
+	 *
+	 * @param string     $set_index Set index in the form array.
+	 * @param string     $i         Rule index within the set.
+	 * @param string     $subject   Rule subject type (product, category, product_tag).
+	 * @param int        $object_id Selected object ID.
+	 * @param array      $cats      Category terms.
+	 * @param array      $tags      Product tag terms.
+	 * @param array      $products  Associative array of product ID => name.
+	 * @return string HTML select element markup.
 	 */
 	protected static function rule_object_select_single( $set_index, $i, $subject, $object_id, $cats, $tags, $products ) {
 		$name = 'wc_extra_product_options_config[sets][' . $set_index . '][rules][' . $i . '][object_id]';
@@ -467,9 +537,12 @@ if ( ! class_exists( 'WCEO_Admin' ) ) {
 	}
 
 	/**
-	 * Lista limitada de produtos para selects (evitar milhares de opções).
+	 * Get limited list of products for admin dropdowns.
 	 *
-	 * @return array<int,string>
+	 * Fetches the first 500 published products to avoid overwhelming the form.
+	 * Returns an associative array of ID => title.
+	 *
+	 * @return array<int,string> Associative array of product ID => title.
 	 */
 	protected static function get_products_choices() {
 		$q = new WP_Query(

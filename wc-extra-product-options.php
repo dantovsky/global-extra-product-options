@@ -38,7 +38,12 @@ define( 'WCEO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WCEO_URL', plugin_dir_url( __FILE__ ) );
 
 /**
- * Inicialização após plugins carregados (WooCommerce).
+ * Bootstrap plugin after all plugins are loaded.
+ *
+ * Checks for WooCommerce dependency and verifies version compatibility.
+ * Loads plugin classes (Core, Admin, Frontend, Cart).
+ *
+ * @return void
  */
 function wceo_bootstrap() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
@@ -88,10 +93,12 @@ function wceo_bootstrap() {
 add_action( 'plugins_loaded', 'wceo_bootstrap', 11 );
 
 /**
- * Ligação "Configurações" na listagem de plugins.
+ * Add Settings link to plugin action links.
  *
- * @param string[] $links Ligações existentes.
- * @return string[]
+ * Adds a "Settings" link in the plugin listing that redirects to the WCEO settings page.
+ *
+ * @param string[] $links Existing plugin action links.
+ * @return string[] Modified links array with Settings link prepended.
  */
 function wceo_plugin_action_links( $links ) {
 	$url = admin_url( 'admin.php?page=wceo-settings' );
