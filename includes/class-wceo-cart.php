@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 if ( ! class_exists( 'WCEO_Cart' ) ) {
 	class WCEO_Cart {
 
-	const CART_KEY = 'woo_extra_selection';
+	const CART_KEY = 'wceo_selection';
 
 	public static function init() {
 		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_required_extras' ), 10, 4 );
@@ -47,8 +47,8 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 		}
 
 		$raw = array();
-		if ( ! empty( $_POST['woo_extra_selection'] ) && is_array( $_POST['woo_extra_selection'] ) ) {
-			$raw = array_map( 'sanitize_key', wp_unslash( $_POST['woo_extra_selection'] ) );
+		if ( ! empty( $_POST['wceo_selection'] ) && is_array( $_POST['wceo_selection'] ) ) {
+			$raw = array_map( 'sanitize_key', wp_unslash( $_POST['wceo_selection'] ) );
 		}
 
 		foreach ( $visible as $set_def ) {
@@ -107,7 +107,7 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 	 * @param int   $variation_id
 	 */
 	public static function add_cart_item_data( $cart_item_data, $product_id, $variation_id ) {
-		if ( empty( $_POST['woo_extra_selection'] ) || ! is_array( $_POST['woo_extra_selection'] ) ) {
+		if ( empty( $_POST['wceo_selection'] ) || ! is_array( $_POST['wceo_selection'] ) ) {
 			return $cart_item_data;
 		}
 
@@ -130,7 +130,7 @@ if ( ! class_exists( 'WCEO_Cart' ) ) {
 			}
 		}
 
-		$raw     = wp_unslash( $_POST['woo_extra_selection'] );
+		$raw     = wp_unslash( $_POST['wceo_selection'] );
 		$clean   = array();
 		$display = array();
 

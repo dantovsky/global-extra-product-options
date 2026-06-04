@@ -137,7 +137,7 @@ if ( ! class_exists( 'WCEO_Frontend' ) ) {
 				echo '<legend class="wceo-set-legend">' . esc_html( $set['name'] ) . '</legend>';
 			}
 
-			$fname = 'woo_extra_selection[' . esc_attr( $sid ) . ']';
+			$fname = 'wceo_selection[' . esc_attr( $sid ) . ']';
 			$type  = isset( $set['choice_type'] ) ? $set['choice_type'] : 'exclusive';
 
 			if ( 'multiple' === $type ) {
