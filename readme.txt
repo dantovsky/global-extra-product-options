@@ -85,6 +85,8 @@ No! Create as many options as needed per set.
 = 1.3.0 =
 * Implemented internationalization (i18n) » EN as default
 * Added translations for pt_BR
+* Added translations for pt_PT
+* Added translations for es_ES
 
 = 1.2.2 =
 * Changed CART_KEY from woo_extra_selection to wceo_selection

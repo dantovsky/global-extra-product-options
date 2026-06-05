@@ -27,3 +27,5 @@ https://juanmoura.com/blog/wordpress-internacional/
 Internacionalização de temas e plugins para WordPress  
 https://blog.apiki.com/internacionalizacao-de-temas-e-plugins-para-wordpress/
 
+Convert .po to .mo  
+https://po2mo.net/
