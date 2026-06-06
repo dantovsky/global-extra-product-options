@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Extra Product Options for WooCommerce
  * Description: This plugin adds extra product options to WooCommerce products with pricing and conditional display rules.
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Dante Marinho
  * Author URI: https://profiles.wordpress.org/dantiii
  * Text Domain: wc-extra-product-options
  * Domain Path: /languages
  * Requires at least: 6.5
- * Tested up to: 6.8
+ * Tested up to: 7.0
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  * WC requires at least: 8.2
@@ -32,7 +32,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCEO_VERSION', '1.3.0' );
+define( 'WCEO_VERSION', '1.3.1' );
 define( 'WCEO_FILE', __FILE__ );
 define( 'WCEO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WCEO_URL', plugin_dir_url( __FILE__ ) );

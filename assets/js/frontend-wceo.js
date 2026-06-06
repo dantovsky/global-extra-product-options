@@ -49,7 +49,7 @@
 		return $('form.variations_form').length > 0;
 	}
 
-	/** Preço principal (produto simples). Não usar em variáveis — o range do topo deve permanecer. */
+	/** Preço principal (produto simples ou variável com preço único no topo). */
 	function findSimpleProductPriceEl() {
 		var selectors = [
 			'.product .entry-summary .price',
@@ -91,7 +91,16 @@
 
 	function findProductPriceEl() {
 		if (isVariableProduct()) {
-			return findVariationPriceEl();
+			var $variationPrice = findVariationPriceEl();
+			if ($variationPrice.length) {
+				var $variationContainer = $variationPrice.closest('.woocommerce-variation-price');
+				if (
+					$variationPrice.is(':visible') ||
+					($variationContainer.length && $variationContainer.is(':visible'))
+				) {
+					return $variationPrice;
+				}
+			}
 		}
 		return findSimpleProductPriceEl();
 	}
