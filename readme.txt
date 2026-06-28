@@ -141,3 +141,10 @@ Recommended update with WordPress.org compatibility improvements and better code
 == Support ==
 
 For support, please visit the [plugin support forum](https://wordpress.org/support/plugin/wc-extra-product-options/) or contact the developer.
+
+== Screenshots ==
+
+1. Location of the "Extra Product Options for WooCommerce" plugin menu.
+2. View of the extra fields management page showing several added fields.
+3. View of the extra fields management page showing the requirement of an extra field.
+4. Example of extra fields added to the frontend.

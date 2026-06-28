@@ -1,6 +1,6 @@
 # Extra Product Options for WooCommerce
 
-!['Banner'](img/banner-with-logo.png)
+!['Extra Product Options for WooCommerce plugin banner with logo'](img/banner-1544x500.png)
 
 'Extra Product Options for WooCommerce' is a WordPress plugin that enables custom fields with price for WooCommerce plugin.
 
@@ -9,9 +9,30 @@
 Github link for this plugin project:  
 [github.com/dantovsky/wc-extra-product-options](https://github.com/dantovsky/wc-extra-product-options)
 
+## Screenshots
+
+1\. Location of the "Extra Product Options for WooCommerce" plugin menu.
+
+![Location oft the plugin menu](img/screenshot-1.png)
+
+2. View of the extra fields management page showing several added fields.
+
+![Extra filds list](img/screenshot-2.png)
+
+3. View of the extra fields management page showing the requirement of an extra field.
+
+![Adding an extra option item](img/screenshot-3.png)
+
+4. Example of extra fields added to the frontend.
+
+![WooCommerce with extra option fields](img/screenshot-4.png)
+
+## Donate for Support this Project
+
 💸 I would love to receive your thanks paying me a coffe! You can contribute throungh the Paypal method:    
 https://www.paypal.com/paypalme/dantemarinho
 
+## Talk With Me
 Send me a message if you need some specifc implementation for this plugin:  
 - https://www.instagram.com/marinhodante/
 - https://www.linkedin.com/in/dantemarinho/
