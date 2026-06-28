@@ -15,15 +15,15 @@ Github link for this plugin project:
 
 ![Location oft the plugin menu](img/screenshot-1.png)
 
-2. View of the extra fields management page showing several added fields.
+2\. View of the extra fields management page showing several added fields.
 
 ![Extra filds list](img/screenshot-2.png)
 
-3. View of the extra fields management page showing the requirement of an extra field.
+3\. View of the extra fields management page showing the requirement of an extra field.
 
 ![Adding an extra option item](img/screenshot-3.png)
 
-4. Example of extra fields added to the frontend.
+4\. Example of extra fields added to the frontend.
 
 ![WooCommerce with extra option fields](img/screenshot-4.png)
 
