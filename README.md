@@ -27,6 +27,10 @@ Github link for this plugin project:
 
 ![WooCommerce with extra option fields](img/screenshot-4.png)
 
+5\. Extra option displayed in the metadata on the cart page.
+
+![Extra options info on cart page](img/screenshot-5.png)
+
 ## Donate for Support this Project
 
 💸 I would love to receive your thanks paying me a coffe! You can contribute throungh the Paypal method:    
